@@ -35,13 +35,19 @@ router.get('/getOne/:id' , async (req, res) => {
 //Post Method
 router.post( '/post' , async (req, res) => {
 
-    const getAge = birthDate => Math.floor(new Date() - new Date(birthDate).getTime())
+    var today = new Date();
+    var birthDate = new Date(req.body.dob);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
 
     const data = new Student({
         name : req.body.name,
         email : req.body.email,
         dob : req.body.dob,
-        age : getAge(req.body.dob),
+        age : age,
     })
 
     try {
@@ -58,12 +64,12 @@ router.post( '/post' , async (req, res) => {
 //Update By ID Method
 router.patch('/update/:id' , async (req, res) => {
     try {
-        // const id = req.params.id;
+        const id = req.params.id;
         const newBody = req.body;
         const options = { new : true };
 
         const data = await Student.findByIdAndUpdate(
-            id, updatedData, options
+            id, newBody, options
         )
 
         res.status(200).json(data)
@@ -78,6 +84,7 @@ router.patch('/update/:id' , async (req, res) => {
 //Delete By ID Method
 router.delete('/delete/:id' , async (req, res) => {
    try {
+    const id = req.params.id;
     const data = await Student.findByIdAndDelete(id)
     res.send(`Document ${data.name} has been deleted..`)
 
